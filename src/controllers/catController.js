@@ -11,7 +11,7 @@ export default {
 	},
 
 	getByUsername: async(req, res) => {
-		username = req.params.username;
+		const username = req.params.username;
 		try {
 			const result = await CatDAO.getByUsername(username);
 			res.send(result);
@@ -63,8 +63,9 @@ export default {
 	},
 
 	follow: async(req, res) => {
-		username = req.body.username;
-		username_to_follow = req.body.username_to_follow;
+		console.log(req.body);
+		const username = req.body.username;
+		const username_to_follow = req.body.username_to_follow;
 
 		try {
 			const result = await CatDAO.follow(username, username_to_follow);
@@ -80,8 +81,8 @@ export default {
 	},
 
 	unfollow: async(req, res) => {
-		username = req.body.username;
-		username_to_unfollow = req.body.username_to_unfollow;
+		const username = req.body.username;
+		const username_to_unfollow = req.body.username_to_unfollow;
 
 		try {
 			const result = await CatDAO.unfollow(username, username_to_unfollow);
