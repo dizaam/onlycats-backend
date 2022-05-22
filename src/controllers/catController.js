@@ -20,15 +20,15 @@ export default {
 		}
 	},
 
-	add: async(req, res) => {
+	create: async(req, res) => {
 		try {
 			// delete null data 
 			for (const field in req.body) {
 				if (!req.body[field]) delete req.body[field]
 			}
 
-			const result = await CatDAO.add(req.body);
-			if(result.success) {
+			const result = await CatDAO.create(req.body);
+			if(!result) {
 				res.send("success");
 			} else {
 				res.send("failed")
@@ -38,24 +38,57 @@ export default {
 		}
 	},
 
-	remove: async(req, res) => {
+	delete: async(req, res) => {
+		const username = req.params.username;
 		try {
-
+			const result = await CatDAO.delete(username);
+			if(!result) {
+				res.send("success");
+			} else {
+				res.send("failed")
+			}
 		} catch(e) {
 			console.error(e);
 		}
 	},
 
 	update: async(req, res) => {
-		try {
+		const username = req.body.username
 
+		let body = {
+			password: req.body.password,
+			bio: req.body.bio,
+			profile_picture: req.body.profile_picture
+		}
+		
+		for (const field in body) {
+			if (!body[field]) delete body[field];
+		}
+
+		try {
+			const result = await CatDAO.update(username, body);
+			
+			if(result) {
+				res.send("success");
+			} else {
+				res.send("failed")
+			}
 		} catch(e) {
 			console.error(e);
 		}
 	},
 
 	login: async(req, res) => {
+		const username = req.body.username;
+		const password = req.body.password;
 		try {
+			const result = await CatDAO.login(username, password);
+			
+			if(result) {
+				res.send("success");
+			} else {
+				res.send("failed")
+			}
 
 		} catch(e) {
 			console.error(e);

@@ -6,6 +6,9 @@ export default class PostDAO {
 
 		try {
 			post = await conn.db("onlycats").collection("post");
+			post.createIndex(
+				{caption: "text"}
+			)
 		} catch(e) {
 			console.error(`Unable to establish a collection handle in PostDAO: ${e}`);
 		}
@@ -29,16 +32,24 @@ export default class PostDAO {
 		}
 	}
 
-	static async add(data) {
+	static async create(data) {
 		try {
 			await post.insertOne(data);
-			return {success: true};
+			return 0;
 		} catch(e) {
-      if (String(e).startsWith("MongoError: E11000 duplicate key error")) {
-        return { error: "A cat with the given username already exists." }
-      }
-      console.error(`Error occurred while adding new cat, ${e}.`)
+			console.error(e);
       return { error: e }
 		}
 	}
+
+	static async delete(id) {
+		try {
+			await post.deleteOne({_id: id});
+			return 0;
+		} catch(e) {
+			console.error(e);
+      return { error: e }
+		}
+	}
+
 }

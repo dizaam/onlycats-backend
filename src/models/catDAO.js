@@ -6,6 +6,10 @@ export default class CatDAO {
 
 		try {
 			cats = await conn.db("onlycats").collection("cats");
+			cats.createIndex(
+				{username: 1},
+				{unique: true}
+			);
 		} catch(e) {
 			console.error(`Unable to establish a collection handle in CatDAO: ${e}`);
 		}
@@ -29,10 +33,10 @@ export default class CatDAO {
 		}
 	}
 
-	static async add(data) {
+	static async create(data) {
 		try {
 			await cats.insertOne(data);
-			return {success: true};
+			return 0;
 		} catch(e) {
       if (String(e).startsWith("MongoError: E11000 duplicate key error")) {
         return { error: "A cat with the given username already exists." }
@@ -41,6 +45,34 @@ export default class CatDAO {
       return { error: e }
 		}
 	}
+
+	static async delete(username) {
+		try {
+			const cursor = await cats.deleteOne({username: username});
+			return !cursor.deletedCount;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+	static async update(username, body_params) {
+		try {
+			const cursor = await cats.findOneAndUpdate({username: username}, {$set: body_params});
+			return cursor;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+	static async login(username, password) {
+		try {
+			const cursor = await cats.findOne({username: username, password: password});
+			return cursor;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
 
 	static async follow(username, username_to_follow) {
 		try {
