@@ -41,4 +41,42 @@ export default class CatDAO {
       return { error: e }
 		}
 	}
+
+	static async follow(username, username_to_follow) {
+		try {
+			await cats.findOneAndUpdate(
+				{username: username},
+				{ $inc: {following: 1}}
+			);
+
+			await cats.findOneAndUpdate(
+				{username: username_to_follow},
+				{ $inc: {follower: 1}}
+			);
+
+			return 0;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+	static async unfollow(username, username_to_unfollow) {
+		try {
+			await cats.findOneAndUpdate(
+				{username: username},
+				{ $inc: {following: -1}}
+			);
+
+			await cats.findOneAndUpdate(
+				{username: username_to_unfollow},
+				{ $inc: {follower: -1}}
+			);
+
+			return 0;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+
 }
