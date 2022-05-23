@@ -96,7 +96,6 @@ export default {
 	},
 
 	follow: async(req, res) => {
-		console.log(req.body);
 		const username = req.body.username;
 		const username_to_follow = req.body.username_to_follow;
 

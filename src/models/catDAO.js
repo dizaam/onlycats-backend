@@ -1,3 +1,4 @@
+import neo4j from "../utils/neo4j"
 let cats;
 
 export default class CatDAO {
@@ -34,8 +35,11 @@ export default class CatDAO {
 	}
 
 	static async create(data) {
+		const username = data.username;
 		try {
-			await cats.insertOne(data);
+			const result = await cats.insertOne(data);
+			// console.log(result.insertedId.toString());
+			await neo4j.write("CREATE(n:Cat{username: $username})", {username: username});
 			return 0;
 		} catch(e) {
       if (String(e).startsWith("MongoError: E11000 duplicate key error")) {
@@ -44,11 +48,14 @@ export default class CatDAO {
       console.error(`Error occurred while adding new cat, ${e}.`)
       return { error: e }
 		}
+
+
 	}
 
 	static async delete(username) {
 		try {
 			const cursor = await cats.deleteOne({username: username});
+			await neo4j.write("MATCH(c:Cat) WHERE c.username = $username DELETE (c)", {username: username});
 			return !cursor.deletedCount;
 		} catch(e) {
 			console.error(e);
@@ -86,6 +93,15 @@ export default class CatDAO {
 				{ $inc: {follower: 1}}
 			);
 
+			await neo4j.write(`
+				MATCH(c1:Cat), (c2:Cat)
+				WHERE c1.username = $username AND c2.username = $username_to_follow
+					CREATE (c1) - [fol: FOLLOW] -> (c2)
+			`, {
+				username: username,
+				username_to_follow: username_to_follow
+			});
+
 			return 0;
 		} catch(e) {
 			console.error(e);
@@ -104,11 +120,19 @@ export default class CatDAO {
 				{ $inc: {follower: -1}}
 			);
 
+			await neo4j.write(`
+				MATCH(c1:Cat) - [fol:FOLLOW] -> (c2:Cat)
+				WHERE c1.username = $username AND c2.username = $username_to_unfollow
+					DELETE (fol)
+			`, {
+				username: username,
+				username_to_unfollow: username_to_unfollow
+			});
+
 			return 0;
 		} catch(e) {
 			console.error(e);
 		}
 	}
-
 
 }
