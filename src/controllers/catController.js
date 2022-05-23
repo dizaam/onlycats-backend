@@ -1,3 +1,5 @@
+import multer from "multer";
+import storage from "../utils/storage";
 import CatDAO from "../models/catDAO"
 
 export default {
@@ -20,14 +22,21 @@ export default {
 		}
 	},
 
+	uploadImage: multer({storage: storage}).single("profile_picture"),
+
 	create: async(req, res) => {
+		const profile_picture = "http://localhost:8080/uploads/" + req.file.path.split('/').slice(1)[8];
+
 		try {
 			// delete null data 
 			for (const field in req.body) {
 				if (!req.body[field]) delete req.body[field]
 			}
 
-			const result = await CatDAO.create(req.body);
+			const result = await CatDAO.create({
+				profile_picture: profile_picture,
+				...req.body
+			});
 			if(!result) {
 				res.send("success");
 			} else {

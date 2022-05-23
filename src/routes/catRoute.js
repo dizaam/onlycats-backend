@@ -9,7 +9,7 @@ router.get("/login", catController.login);
 
 router.get("/:username", catController.getByUsername);
 
-router.post("/", catController.create);
+router.post("/", catController.uploadImage, catController.create);
 
 router.patch("/", catController.update);
 

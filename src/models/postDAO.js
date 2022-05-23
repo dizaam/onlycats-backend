@@ -51,5 +51,4 @@ export default class PostDAO {
       return { error: e }
 		}
 	}
-
 }

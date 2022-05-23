@@ -16,6 +16,7 @@ try {
 const server = express();
 server.use(express.urlencoded({extended: true}))
 server.use(express.json());
+server.use('/uploads', express.static('./src/uploads'));
 server.set("views", "./src/views");
 server.set("view engine", "pug");
 
