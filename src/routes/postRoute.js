@@ -7,6 +7,8 @@ router.get("/", postController.getAll);
 
 router.get("/:id", postController.getByUsername);
 
+router.get("/likes/:post_id", postController.getLikes);
+
 router.post("/", postController.uploadImage, postController.create);
 
 router.delete("/:id", postController.delete);

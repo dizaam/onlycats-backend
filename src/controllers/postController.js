@@ -109,4 +109,22 @@ export default {
 		}
 	},
 
+	getLikes: async(req, res) => {
+		const post_id = req.params.post_id;
+
+		try {
+			let result = await PostDAO.getLikes(post_id);
+			result = result.records.map(record => {
+				return {
+					username: record._fields[0].properties.username
+				}
+			});
+
+			res.send(result);
+		} catch(e) {
+			console.error(e);
+		}
+	},
+
+
 }

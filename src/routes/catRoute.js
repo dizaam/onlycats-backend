@@ -9,6 +9,10 @@ router.get("/login", catController.login);
 
 router.get("/:username", catController.getByUsername);
 
+router.get("/following/:username", catController.getFollowing);
+
+router.get("/follower/:username", catController.getFollower);
+
 router.post("/", catController.uploadImage, catController.create);
 
 router.patch("/", catController.update);

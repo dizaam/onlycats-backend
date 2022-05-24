@@ -135,4 +135,38 @@ export default class CatDAO {
 		}
 	}
 
+	static async getFollowing(username) {
+		try {
+			const result = await neo4j.read(`
+				MATCH(c1:Cat) - [fol:FOLLOW] -> (c2:Cat)
+				WHERE c1.username = $username
+				RETURN (c2)
+			`, {
+				username: username
+			})
+
+			return result;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+	static async getFollower(username) {
+		try {
+			const result = await neo4j.read(`
+				MATCH(c1:Cat) - [fol:FOLLOW] -> (c2:Cat)
+				WHERE c2.username = $username
+				RETURN (c1)
+			`, {
+				username: username
+			})
+
+			return result;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+
+
 }

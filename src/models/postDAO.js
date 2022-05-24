@@ -110,5 +110,22 @@ export default class PostDAO {
 		}
 	}
 
+	static async getLikes(post_id) {
+		try {
+			const result = await neo4j.read(`
+				MATCH(p:Post) - [like:LIKED_BY] -> (c:Cat)
+				WHERE p.id = $post_id
+					RETURN (c)
+			`, {
+				post_id: post_id
+			});
+
+			return result;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+
 
 }

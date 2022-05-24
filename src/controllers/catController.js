@@ -151,4 +151,38 @@ export default {
 		}
 	},
 
+	getFollowing: async(req, res) => {
+		const username = req.params.username;
+
+		try {
+			let result = await CatDAO.getFollowing(username);
+			result = result.records.map(record => {
+				return {
+					username: record._fields[0].properties.username
+				}
+			});
+
+			res.send(result);
+		} catch(e) {
+			console.error(e);
+		}
+	},
+
+	getFollower: async(req, res) => {
+		const username = req.params.username;
+
+		try {
+			let result = await CatDAO.getFollower(username);
+			result = result.records.map(record => {
+				return {
+					username: record._fields[0].properties.username
+				}
+			});
+
+			res.send(result);
+		} catch(e) {
+			console.error(e);
+		}
+	},
+
 }
