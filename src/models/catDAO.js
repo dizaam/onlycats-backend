@@ -55,7 +55,7 @@ export default class CatDAO {
 	static async delete(username) {
 		try {
 			const cursor = await cats.deleteOne({username: username});
-			await neo4j.write("MATCH(c:Cat) WHERE c.username = $username DELETE (c)", {username: username});
+			await neo4j.write("MATCH(c:Cat) WHERE c.username = $username DETACH DELETE (c)", {username: username});
 			return !cursor.deletedCount;
 		} catch(e) {
 			console.error(e);

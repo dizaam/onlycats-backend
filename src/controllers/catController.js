@@ -25,18 +25,31 @@ export default {
 	uploadImage: multer({storage: storage}).single("profile_picture"),
 
 	create: async(req, res) => {
-		const profile_picture = "http://localhost:8080/uploads/" + req.file.path.split('/').slice(1)[8];
+		let profile_picture;
+
+		try {
+			profile_picture = ("http://localhost:8080/uploads/" + req.file.path.split('/').slice(1)[8]);
+		} catch(e){
+
+		}
+
+		let body = {
+			...req.body,
+			profile_picture
+		}
 
 		try {
 			// delete null data 
-			for (const field in req.body) {
-				if (!req.body[field]) delete req.body[field]
+			for (const field in body) {
+				if (!body[field]) {
+					delete body[field];
+				}
 			}
 
 			const result = await CatDAO.create({
-				profile_picture: profile_picture,
-				...req.body
+				...body
 			});
+
 			if(!result) {
 				res.send("success");
 			} else {
