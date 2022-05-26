@@ -1,11 +1,22 @@
 import multer from "multer";
 import storage from "../utils/storage";
 import PostDAO from "../models/postDAO";
+import CatDAO from "../models/catDAO";
 
 export default {
 	getAll: async(req, res) => {
 		try {
-			const result = await CatDAO.getAll();
+			const result = await PostDAO.getAll();
+			res.send(result);
+		} catch(e) {
+			console.error(e);
+		}
+	},
+
+	getById: async(req, res) => {
+		const id = req.params.id;
+		try {
+			const result = await PostDAO.getById(id);
 			res.send(result);
 		} catch(e) {
 			console.error(e);
@@ -15,7 +26,23 @@ export default {
 	getByUsername: async(req, res) => {
 		const username = req.params.username;
 		try {
-			const result = await CatDAO.getByUsername(username);
+			const result = await PostDAO.getByUsername(username);
+			res.send(result);
+		} catch(e) {
+			console.error(e);
+		}
+	},
+
+	getByFollowing: async(req, res) => {
+		const username = req.params.username;
+		try {
+			let usernames_following = await CatDAO.getFollowing(username);
+
+			usernames_following = usernames_following.map(username => {
+				return username.username;
+			})
+
+			const result = await PostDAO.getByFollowing(usernames_following);
 			res.send(result);
 		} catch(e) {
 			console.error(e);
@@ -114,11 +141,6 @@ export default {
 
 		try {
 			let result = await PostDAO.getLikes(post_id);
-			result = result.records.map(record => {
-				return {
-					username: record._fields[0].properties.username
-				}
-			});
 
 			res.send(result);
 		} catch(e) {

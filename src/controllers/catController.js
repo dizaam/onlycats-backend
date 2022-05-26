@@ -155,12 +155,7 @@ export default {
 		const username = req.params.username;
 
 		try {
-			let result = await CatDAO.getFollowing(username);
-			result = result.records.map(record => {
-				return {
-					username: record._fields[0].properties.username
-				}
-			});
+			const result = await CatDAO.getFollowing(username);
 
 			res.send(result);
 		} catch(e) {
@@ -172,12 +167,7 @@ export default {
 		const username = req.params.username;
 
 		try {
-			let result = await CatDAO.getFollower(username);
-			result = result.records.map(record => {
-				return {
-					username: record._fields[0].properties.username
-				}
-			});
+			const result = await CatDAO.getFollower(username);
 
 			res.send(result);
 		} catch(e) {

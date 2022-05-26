@@ -5,7 +5,11 @@ const router = Router();
 
 router.get("/", postController.getAll);
 
-router.get("/:id", postController.getByUsername);
+router.get("/:id", postController.getById);
+
+router.get("/feed/:username", postController.getByFollowing);
+
+router.get("/created_by/:username", postController.getByUsername);
 
 router.get("/likes/:post_id", postController.getLikes);
 

@@ -27,8 +27,31 @@ export default class PostDAO {
 
 	static async getById(id) {
 		try {
-			const cursor = await post.findOne({_id: id});
+			const cursor = await post.findOne({_id: mongodb.ObjectId(id)});
 			return cursor;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+	static async getByUsername(username) {
+		try {
+			const cursor = await post.find({created_by: username});
+			return cursor.toArray();
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+
+	static async getByFollowing(usernames) {
+		try {
+			const cursor = await post.find(
+				{
+					created_by: {$in: [...usernames]}
+				}
+			);
+			return cursor.toArray();
 		} catch(e) {
 			console.error(e);
 		}
@@ -51,7 +74,7 @@ export default class PostDAO {
 			await neo4j.write(`
 				MATCH(p:Post)
 				WHERE p.id = $id
-					DETACH
+					DETAC	H
 					DELETE p
 			`, {
 				id: id
@@ -112,12 +135,18 @@ export default class PostDAO {
 
 	static async getLikes(post_id) {
 		try {
-			const result = await neo4j.read(`
+			let result = await neo4j.read(`
 				MATCH(p:Post) - [like:LIKED_BY] -> (c:Cat)
 				WHERE p.id = $post_id
 					RETURN (c)
 			`, {
 				post_id: post_id
+			});
+
+			result = result.records.map(record => {
+				return {
+					username: record._fields[0].properties.username
+				}
 			});
 
 			return result;
