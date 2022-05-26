@@ -40,7 +40,7 @@ export default class CatDAO {
 			const result = await cats.insertOne(data);
 			// console.log(result.insertedId.toString());
 			await neo4j.write("CREATE(n:Cat{username: $username})", {username: username});
-			return 0;
+			return true;
 		} catch(e) {
       if (String(e).startsWith("MongoError: E11000 duplicate key error")) {
         return { error: "A cat with the given username already exists." }
@@ -56,7 +56,7 @@ export default class CatDAO {
 		try {
 			const cursor = await cats.deleteOne({username: username});
 			await neo4j.write("MATCH(c:Cat) WHERE c.username = $username DETACH DELETE (c)", {username: username});
-			return !cursor.deletedCount;
+			return cursor.deletedCount;
 		} catch(e) {
 			console.error(e);
 		}
@@ -102,7 +102,7 @@ export default class CatDAO {
 				username_to_follow: username_to_follow
 			});
 
-			return 0;
+			return true;
 		} catch(e) {
 			console.error(e);
 		}
@@ -129,7 +129,7 @@ export default class CatDAO {
 				username_to_unfollow: username_to_unfollow
 			});
 
-			return 0;
+			return true;
 		} catch(e) {
 			console.error(e);
 		}
@@ -146,12 +146,12 @@ export default class CatDAO {
 			})
 
 			result = result.records.map(record => {
-				return {
-					username: record._fields[0].properties.username
-				}
+				return record._fields[0].properties.username;
 			});
 
-			return result;
+			return {
+				username: result
+			};
 		} catch(e) {
 			console.error(e);
 		}
@@ -168,13 +168,12 @@ export default class CatDAO {
 			})
 
 			result = result.records.map(record => {
-				return {
-					username: record._fields[0].properties.username
-				}
+				return record._fields[0].properties.username;
 			});
 
-
-			return result;
+			return {
+				username: result
+			};
 		} catch(e) {
 			console.error(e);
 		}

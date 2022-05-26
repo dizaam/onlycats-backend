@@ -1,15 +1,44 @@
 import multer from "multer";
 import storage from "../utils/storage";
+import response from "../utils/response_header";
 import PostDAO from "../models/postDAO";
 import CatDAO from "../models/catDAO";
 
 export default {
+
+	search: async(req, res) => {
+		const text = req.query.text;
+
+		try {
+			const result = await PostDAO.search(text);
+
+			res.status(200).json({
+				...response.success(),
+				data: result
+			});
+
+		} catch(e) {
+			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
+		}
+	},
+
 	getAll: async(req, res) => {
 		try {
 			const result = await PostDAO.getAll();
-			res.send(result);
+
+			res.status(200).json({
+				...response.success(),
+				data: result
+			});
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -17,9 +46,24 @@ export default {
 		const id = req.params.id;
 		try {
 			const result = await PostDAO.getById(id);
-			res.send(result);
+
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+					data: result
+				});
+			} else {
+				console.error("post cannot found");
+				res.status(400).json({
+					...response.notFound(id)
+				})
+			}
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -27,25 +71,44 @@ export default {
 		const username = req.params.username;
 		try {
 			const result = await PostDAO.getByUsername(username);
-			res.send(result);
+
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+					data: result
+				});
+			} else {
+				console.error("post cannot found");
+				res.status(400).json({
+					...response.notFound(id)
+				})
+			}
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
 	getByFollowing: async(req, res) => {
 		const username = req.params.username;
 		try {
-			let usernames_following = await CatDAO.getFollowing(username);
-
-			usernames_following = usernames_following.map(username => {
-				return username.username;
-			})
+			let usernames_following = await (await CatDAO.getFollowing(username)).username;
 
 			const result = await PostDAO.getByFollowing(usernames_following);
-			res.send(result);
+
+			res.status(200).json({
+				...response.success(),
+				data: result
+			});
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -78,27 +141,48 @@ export default {
 				...body
 			});
 
-			if(!result) {
-				res.send("success");
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+					data: body
+				});
 			} else {
-				res.send("failed")
+				console.error("bad request on creating post");
+				res.status(400).json({
+					...response.badRequest()
+				})
 			}
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
 	delete: async(req, res) => {
 		const id = req.params.id;
+
 		try {
 			const result = await PostDAO.delete(id);
-			if(!result) {
-				res.send("success");
+			console.log(result);
+
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+				});
 			} else {
-				res.send("failed")
+				console.error("bad request on creating post");
+				res.status(400).json({
+					...response.badRequest()
+				})
 			}
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -109,13 +193,22 @@ export default {
 		try {
 			const result = await PostDAO.like(username, post_id);
 
-			if(!result) {
-				res.send("success");
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+				});
 			} else {
-				res.send("failed")
+				console.error("post cannot found");
+				res.status(400).json({
+					...response.notFound(post_id)
+				})
 			}
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -126,13 +219,22 @@ export default {
 		try {
 			const result = await PostDAO.unlike(username, post_id);
 
-			if(!result) {
-				res.send("success");
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+				});
 			} else {
-				res.send("failed")
+				console.error("post cannot found");
+				res.status(400).json({
+					...response.notFound(id)
+				})
 			}
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -142,9 +244,16 @@ export default {
 		try {
 			let result = await PostDAO.getLikes(post_id);
 
-			res.send(result);
+			res.status(200).json({
+				...response.success(),
+				data: result
+			});
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 

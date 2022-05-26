@@ -1,14 +1,23 @@
 import multer from "multer";
 import storage from "../utils/storage";
 import CatDAO from "../models/catDAO"
+import response from "../utils/response_header";
 
 export default {
 	getAll: async(req, res) => {
 		try {
 			const result = await CatDAO.getAll();
-			res.send(result);
+
+			res.status(200).json({
+				...response.success(),
+				data: result
+			});
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -16,9 +25,17 @@ export default {
 		const username = req.params.username;
 		try {
 			const result = await CatDAO.getByUsername(username);
-			res.send(result);
+
+			res.status(200).json({
+				...response.success(),
+				data: result
+			});
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -50,53 +67,87 @@ export default {
 				...body
 			});
 
-			if(!result) {
-				res.send("success");
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+					data: body
+				});
 			} else {
-				res.send("failed")
+				console.error("duplicate username");
+				res.status(400).json({
+					...response.duplicate(body.username)
+				})
 			}
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
 	delete: async(req, res) => {
 		const username = req.params.username;
+
 		try {
 			const result = await CatDAO.delete(username);
-			if(!result) {
-				res.send("success");
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+				});
 			} else {
-				res.send("failed")
+				console.error("username cannot found");
+				res.status(400).json({
+					...response.notFound(username)
+				})
 			}
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
 	update: async(req, res) => {
-		const username = req.body.username
+		let profile_picture;
+
+		try {
+			profile_picture = ("http://localhost:8080/uploads/" + req.file.path.split('/').slice(1)[8]);
+		} catch(e){
+
+		}
 
 		let body = {
-			password: req.body.password,
-			bio: req.body.bio,
-			profile_picture: req.body.profile_picture
-		}
-		
-		for (const field in body) {
-			if (!body[field]) delete body[field];
+			...req.body,
+			profile_picture
 		}
 
 		try {
-			const result = await CatDAO.update(username, body);
+			// delete null data 
+			for (const field in body) {
+				if (!body[field]) {
+					delete body[field];
+				}
+			}
+
+			const result = await CatDAO.update(body.username, body);
 			
 			if(result) {
-				res.send("success");
+				res.status(200).json({
+					...response.success(),
+				});
 			} else {
-				res.send("failed")
+				console.error("username cannot found");
+				res.status(400).json({
+					...response.notFound(body.username)
+				})
 			}
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -107,13 +158,21 @@ export default {
 			const result = await CatDAO.login(username, password);
 			
 			if(result) {
-				res.send("success");
+				res.status(200).json({
+					...response.success(),
+				});
 			} else {
-				res.send("failed")
+				console.error("username cannot found");
+				res.status(400).json({
+					...response.notFound(username)
+				})
 			}
 
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -124,13 +183,22 @@ export default {
 		try {
 			const result = await CatDAO.follow(username, username_to_follow);
 
-			if(!result) {
-				res.send("success");
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+				});
 			} else {
-				res.send("failed")
+				console.error("username cannot found");
+				res.status(400).json({
+					...response.notFound(username)
+				})
 			}
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -141,13 +209,22 @@ export default {
 		try {
 			const result = await CatDAO.unfollow(username, username_to_unfollow);
 
-			if(!result) {
-				res.send("success");
+			if(result) {
+				res.status(200).json({
+					...response.success(),
+				});
 			} else {
-				res.send("failed")
+				console.error("username cannot found");
+				res.status(400).json({
+					...response.notFound(username)
+				})
 			}
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -157,9 +234,16 @@ export default {
 		try {
 			const result = await CatDAO.getFollowing(username);
 
-			res.send(result);
+			res.status(200).json({
+				...response.success(),
+				data: result
+			});
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
 
@@ -169,10 +253,16 @@ export default {
 		try {
 			const result = await CatDAO.getFollower(username);
 
-			res.send(result);
+			res.status(200).json({
+				...response.success(),
+				data: result
+			});
+
 		} catch(e) {
 			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
 		}
 	},
-
 }

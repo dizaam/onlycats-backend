@@ -15,7 +15,7 @@ router.get("/follower/:username", catController.getFollower);
 
 router.post("/", catController.uploadImage, catController.create);
 
-router.patch("/", catController.update);
+router.patch("/", catController.uploadImage, catController.update);
 
 router.patch("/follow", catController.follow);
 
