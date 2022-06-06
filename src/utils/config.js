@@ -9,4 +9,8 @@ export default {
 		password: 'qwerty123',
 		database: 'neo4j',
 	},
+
+	mongodb: {
+		url: 'mongodb://127.0.0.1:27017'
+	}
 };

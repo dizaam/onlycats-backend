@@ -1,13 +1,14 @@
 import { MongoClient } from "mongodb";
 import express from "express";
+import cors from "cors"
+import config from "./src/utils/config";
 import CatDAO from "./src/models/catDAO";
 import PostDAO from "./src/models/postDAO";
-import viewRoute from "./src/routes/viewRoute";
 import catRoute from "./src/routes/catRoute";
 import postRoute from "./src/routes/postRoute";
 
 try {
-	const client = await MongoClient.connect("mongodb://127.0.0.1:27017");
+	const client = await MongoClient.connect(config.mongodb.url);
 	CatDAO.injectDB(client);
 	PostDAO.injectDB(client);
 } catch(e) {
@@ -15,13 +16,12 @@ try {
 }
 
 const server = express();
+server.use(cors());
+server.options('*', cors());
 server.use(express.urlencoded({extended: true}))
 server.use(express.json());
 server.use('/uploads', express.static('./src/uploads'));
-server.set("views", "./src/views");
-server.set("view engine", "pug");
 
-server.use("/", viewRoute);
 server.use("/api/cat", catRoute);
 server.use("/api/post", postRoute);
 

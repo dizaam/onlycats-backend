@@ -64,6 +64,7 @@ export default {
 			}
 
 			const result = await CatDAO.create({
+				created_at: new Date(),
 				...body
 			});
 
@@ -131,7 +132,7 @@ export default {
 				}
 			}
 
-			const result = await CatDAO.update(body.username, body);
+			const result = await CatDAO.update(body.username, { updated_at: new Date(), ...body });
 			
 			if(result) {
 				res.status(200).json({

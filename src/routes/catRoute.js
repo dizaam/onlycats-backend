@@ -5,8 +5,6 @@ const router = Router();
 
 router.get("/", catController.getAll);
 
-router.get("/login", catController.login);
-
 router.get("/:username", catController.getByUsername);
 
 router.get("/following/:username", catController.getFollowing);
@@ -14,6 +12,8 @@ router.get("/following/:username", catController.getFollowing);
 router.get("/follower/:username", catController.getFollower);
 
 router.post("/", catController.uploadImage, catController.create);
+
+router.post("/login", catController.login);
 
 router.patch("/", catController.uploadImage, catController.update);
 

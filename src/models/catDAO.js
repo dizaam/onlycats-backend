@@ -1,5 +1,6 @@
 import neo4j from "../utils/neo4j"
 let cats;
+const CAT_SCHEMA_VERSION = 2;
 
 export default class CatDAO {
 	static async injectDB(conn) {
@@ -37,19 +38,16 @@ export default class CatDAO {
 	static async create(data) {
 		const username = data.username;
 		try {
-			const result = await cats.insertOne(data);
+			const result = await cats.insertOne({
+				schema_ver: CAT_SCHEMA_VERSION,
+				...data
+			});
 			// console.log(result.insertedId.toString());
 			await neo4j.write("CREATE(n:Cat{username: $username})", {username: username});
 			return true;
 		} catch(e) {
-      if (String(e).startsWith("MongoError: E11000 duplicate key error")) {
-        return { error: "A cat with the given username already exists." }
-      }
-      console.error(`Error occurred while adding new cat, ${e}.`)
-      return { error: e }
+			return false;
 		}
-
-
 	}
 
 	static async delete(username) {

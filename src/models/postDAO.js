@@ -1,6 +1,7 @@
 import neo4j from "../utils/neo4j";
 import mongodb from "mongodb";
 let post;
+const POST_SCHEMA_VERSION = 2;
 
 export default class PostDAO {
 	static async injectDB(conn) {
@@ -10,6 +11,12 @@ export default class PostDAO {
 			post = await conn.db("onlycats").collection("post");
 			post.createIndex(
 				{caption: "text"}
+			)
+			post.createIndex(
+				{
+					likes: -1,
+					created_at: 1
+				}
 			)
 		} catch(e) {
 			console.error(`Unable to establish a collection handle in PostDAO: ${e}`);
@@ -71,9 +78,31 @@ export default class PostDAO {
 		}
 	}
 
+	static async getByTrend() {
+		const today = new Date()
+		today.setHours(0, 0, 0, 0);
+		try {
+			const cursor = await post.aggregate(
+				[
+					{ $match: { created_at: { $gte: today }}},
+					{ $sort: { likes: -1, created_at: 1}},
+					{ $limit: 10 }
+				]
+			);
+			return cursor.toArray();
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+
+
 	static async create(data) {
 		try {
-			const result = await post.insertOne(data);
+			const result = await post.insertOne({
+				schema_ver: POST_SCHEMA_VERSION,
+				...data
+			});
 			await neo4j.write("CREATE(p:Post{id: $id})", {id: result.insertedId.toString()});
 			return true;
 		} catch(e) {

@@ -7,6 +7,8 @@ router.get("/", postController.getAll);
 
 router.get("/search", postController.search);
 
+router.get("/trend", postController.getByTrend);
+
 router.get("/:id", postController.getById);
 
 router.get("/feed/:username", postController.getByFollowing);

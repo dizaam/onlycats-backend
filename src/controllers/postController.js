@@ -112,6 +112,24 @@ export default {
 		}
 	},
 
+	getByTrend: async(req, res) => {
+		try {
+			const result = await PostDAO.getByTrend();
+
+			res.status(200).json({
+				...response.success(),
+				data: result
+			});
+
+		} catch(e) {
+			console.error(e);
+			res.status(500).json({
+				...response.serverError,
+			});
+		}
+	},
+
+
 	uploadImage: multer({storage: storage}).single("media"),
 
 	create: async(req, res) => {
@@ -138,6 +156,7 @@ export default {
 			}
 
 			const result = await PostDAO.create({
+				created_at: new Date(),
 				...body
 			});
 
